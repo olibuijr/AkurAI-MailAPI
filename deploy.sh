@@ -123,7 +123,7 @@ else
   exit 1
 fi
 
-if ssh "$SSH_HOST" "set -a; . /etc/akurai-mail-ui.env; set +a; session=\$(printf '%s' \"\$AKURAI_ADMIN_USER:\$AKURAI_ADMIN_PASSWORD\" | sha256sum | awk '{print \$1}'); curl -fsS -o /dev/null -w '%{http_code}' -b akurai_session=\$session http://127.0.0.1:3000/api/status" | grep -q 200; then
+if ssh "$SSH_HOST" "sudo bash -c 'set -a; . /etc/akurai-mail-ui.env; set +a; session=\$(printf \"%s\" \"\$AKURAI_ADMIN_USER:\$AKURAI_ADMIN_PASSWORD\" | sha256sum | awk \"{print \\\$1}\"); curl -fsS -o /dev/null -w \"%{http_code}\" -b akurai_session=\$session http://127.0.0.1:3000/api/status'" | grep -q 200; then
   log "Authenticated API healthcheck passed"
 else
   echo "ERROR: authenticated API healthcheck failed"
