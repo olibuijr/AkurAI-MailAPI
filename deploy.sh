@@ -82,22 +82,7 @@ chmod 0600 /etc/akurai-mail-ui.env
 rm -f /etc/sudoers.d/akurai-mail-server
 rm -f /usr/local/sbin/akurai-mail-server
 
-cat > /etc/nginx/conf.d/akurai-mail-performance.conf <<'EOF'
-gzip on;
-gzip_vary on;
-gzip_proxied any;
-gzip_comp_level 5;
-gzip_min_length 512;
-gzip_types
-  text/plain
-  text/css
-  text/javascript
-  application/javascript
-  application/json
-  application/manifest+json
-  application/wasm
-  image/svg+xml;
-EOF
+rm -f /etc/nginx/conf.d/akurai-mail-performance.conf
 
 cat > /etc/systemd/system/akurai-mail-ui.service <<EOF
 [Unit]
