@@ -140,6 +140,14 @@ pub async fn auth_check(headers: HeaderMap) -> Response {
     json_ok(auth::auth_check_response(&headers))
 }
 
+pub async fn health() -> Response {
+    json_ok(json!({
+        "app": env!("CARGO_PKG_NAME"),
+        "version": env!("CARGO_PKG_VERSION"),
+        "status": "ok"
+    }))
+}
+
 // ---------------------------------------------------------------------------
 // Admin API routes
 // ---------------------------------------------------------------------------

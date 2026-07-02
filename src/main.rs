@@ -111,6 +111,7 @@ async fn main() {
 
     // Public routes (no auth)
     let public = Router::new()
+        .route("/api/health", get(routes::health))
         .route("/api/login", post(routes::login))
         .route("/api/logout", get(routes::logout))
         .route("/api/auth/check", get(routes::auth_check))
