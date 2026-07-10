@@ -1937,20 +1937,26 @@ fn escape_html(value: &str) -> String {
 }
 
 fn sanitize_html(value: &str) -> String {
-    let mut out =
-        Regex::new("(?is)<(script|style|iframe|object|embed|link|meta|base|form)[^>]*>.*?</\\1>")
-            .unwrap()
-            .replace_all(value, "")
-            .to_string();
+    // Rust's `regex` crate is RE2-based — no backreferences (`\1`). Strip each
+    // dangerous tag pair by name instead of trying to match the same regex's
+    // own capture group as the closing tag (that crashed with `Syntax(...)`,
+    // "backreferences are not supported", panicking the process on every read).
+    const DANGEROUS_TAGS: [&str; 9] =
+        ["script", "style", "iframe", "object", "embed", "link", "meta", "base", "form"];
+    let mut out = value.to_string();
+    for tag in DANGEROUS_TAGS {
+        let pair_re = Regex::new(&format!(r"(?is)<{tag}\b[^>]*>.*?</{tag}\s*>")).unwrap();
+        out = pair_re.replace_all(&out, "").to_string();
+    }
     out = Regex::new("(?is)<(script|style|iframe|object|embed|link|meta|base|form)[^>]*/?>")
         .unwrap()
         .replace_all(&out, "")
         .to_string();
-    out = Regex::new(r#"(?is)\s+on[a-zA-Z]+\s*=\s*(['"]).*?\1"#)
+    out = Regex::new(r#"(?is)\s+on[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*')"#)
         .unwrap()
         .replace_all(&out, "")
         .to_string();
-    Regex::new(r#"(?is)\s+(href|src)\s*=\s*(['"])\s*javascript:.*?\2"#)
+    Regex::new(r#"(?is)\s+(href|src)\s*=\s*(?:"\s*javascript:[^"]*"|'\s*javascript:[^']*')"#)
         .unwrap()
         .replace_all(&out, "$1=\"#\"")
         .to_string()
